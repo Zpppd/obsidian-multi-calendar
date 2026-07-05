@@ -1,0 +1,9 @@
+{
+    "id": "multi-calendar",
+    "name": "Multi Calendar",
+    "version": "0.0.1",
+    "minAppVersion": "0.0.1",
+    "description": "支持多日历档案的日历插件，每个日历独立配置笔记路径和模板",
+    "author": "Heiha",
+    "isDesktopOnly": false
+}

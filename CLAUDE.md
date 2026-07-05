@@ -6,7 +6,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Obsidian Multi-Calendar Plugin — 一个支持多日历档案的 Obsidian 插件。允许用户创建多个独立日历（如"生活日历"、"工作日历"），每个日历拥有独立的笔记路径规则和模板配置。
 
-当前状态：**设计阶段完成，尚未开始编码**。所有架构设计、数据模型、组件树、文件列表详见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+当前状态：**Step 1 完成 — 插件可加载，在 Obsidian 右侧栏显示月视图 Grid（静态，无交互）。**
+
+已完成文件：
+- `manifest.json` / `package.json` / `tsconfig.json` / `esbuild.config.mjs` — 项目骨架
+- `src/main.ts` — 插件入口，CalendarView（ItemView）用 `onLayoutReady` 挂载 Vue，防重复创建
+- `src/view/App.tsx` — Vue 根组件，luxon 算 42 格日期网格，JSX 渲染 CSS Grid
+- `src/shims-vue.ts` — 为 esbuild 注入 Vue 的 `h` 和 `Fragment`
+- `styles.css` — Grid 布局、日列、周列、今天高亮样式（全 Obsidian CSS 变量）
+
+详细架构设计、数据模型、组件树见 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)。
+
+## 开发方式
+
+**以教程视角逐步推进，每一步都有可见的产出。**
+
+- 不要预先定义"未来会用到"的类型、接口、工具类。当下一步需要用到某个东西时，才去创建它。
+- 每个步骤的代码量尽量小，让用户能看到一个可运行、可验证的结果。
+- 前面的步骤为后面的步骤铺路——不是提前铺，而是缺了再补。
+
+## 沟通风格
+
+- **代码解释要简洁**。只讲这个函数/类是干什么的、关键参数什么意思，不讲执行流程和调用链。
+- **用户问到什么讲什么**，不主动展开还没被问到的东西。
+- 用户负责写代码，Claude 负责出代码方案和解释。
 
 ## Build & Dev Commands
 

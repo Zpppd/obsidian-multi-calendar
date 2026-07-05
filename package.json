@@ -1,0 +1,21 @@
+{
+    "name": "obsidian-multi-calendar",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "dev": "node esbuild.config.mjs",
+        "build": "node esbuild.config.mjs production",
+        "typecheck": "tsc -noEmit -skipLibCheck"
+    },
+    "dependencies": {
+        "luxon": "^3.4.4",
+        "pinia": "^2.1.7",
+        "vue": "^3.4.0"
+    },
+    "devDependencies": {
+        "@types/luxon": "^3.4.2",
+        "esbuild": "^0.20.0",
+        "obsidian": "latest",
+        "typescript": "^5.4.0"
+    }
+}
