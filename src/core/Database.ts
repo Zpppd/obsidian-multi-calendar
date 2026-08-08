@@ -27,7 +27,10 @@ export class Database{
                 calendars: [defaultProfile],
                 activeCalendarId: defaultProfile.id,
                 shouldConfirmBeforeCreate: false,
-                templatePlugin: "obsidian"
+                templatePlugin: "obsidian",
+                dotColor: "#4A90D9",
+                wordsPerDot: 100,
+                dotUpperLimit: 3
             };
             await this.adapter.saveData(this.settings);
         }

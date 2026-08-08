@@ -24,9 +24,9 @@ export default defineComponent({
             type: Boolean,
             default: false
         },
-        hasNote: {
-            type: Boolean,
-            default: false
+        dotCount: {
+            type: Number,
+            default: 0
         }
     },
     emits: ["select", "open"],
@@ -46,7 +46,13 @@ export default defineComponent({
                     onDblclick={() => emit("open", props.date)}
                 >
                     <span class="mc-day-cell-number">{props.day}</span>
-                    {props.hasNote && <span class="mc-day-cell-dot" />}
+                    {props.dotCount > 0 && (
+                        <span class="mc-day-cell-dots">
+                            {Array.from({ length: props.dotCount }, (_, i) => (
+                                <span class="mc-day-cell-dot" key={i} />
+                            ))}
+                        </span>
+                    )}
                 </div>
             )
         }

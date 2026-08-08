@@ -54,6 +54,28 @@ export class NoteService {
         return this.plugin.app.vault.getAbstractFileByPath(path) instanceof TFile;
     }
 
+    // 统计某日笔记的字数（找不到笔记或未配置时返回 0）
+    // 统计规则：汉字、英文字母单词、数字各算一个字/词
+    async countWords(date: DateTime, noteType: NoteType): Promise<number> {
+        const path = this.getNotePath(date, noteType);
+        if (!path) return 0;
+        const file = this.plugin.app.vault.getAbstractFileByPath(path);
+        if (!(file instanceof TFile)) return 0;
+
+        const content = await this.plugin.app.vault.cachedRead(file);
+        const result = content.match(/[一-龥]|[A-Za-z]+[0-9]*[A-Za-z0-9]*|[0-9]+/g);
+        return result ? result.length : 0;
+    }
+
+    // 根据配置的字数换算统计点数：一个点 wordsPerDot 字，上限 dotUpperLimit
+    getDotCount(words: number): number {
+        const settings = this.plugin.database.getSettings();
+        const wordsPerDot = settings.wordsPerDot || 100;
+        const dotUpperLimit = settings.dotUpperLimit || 3;
+        const dots = Math.ceil(words / wordsPerDot);
+        return Math.min(dots, dotUpperLimit);
+    }
+
     // 打开已有笔记，或创建新笔记
     async openOrCreate(date: DateTime, noteType: NoteType): Promise<void> {
         const path = this.getNotePath(date, noteType);

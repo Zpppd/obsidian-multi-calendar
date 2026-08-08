@@ -101,12 +101,19 @@
     min-height: 30px;
 }
 
-/* 笔记统计点：当日有笔记时显示 */
+/* 笔记统计点：当日有笔记时显示（横向排列，数量由字数决定） */
+.mc-day-cell-dots {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 4px;
+}
+
 .mc-day-cell-dot {
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background: var(--interactive-accent);
+    background: var(--mc-dot-color, var(--interactive-accent));
     flex-shrink: 0;
 }
 

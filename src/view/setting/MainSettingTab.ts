@@ -42,7 +42,7 @@ export class MainSettingTab extends PluginSettingTab {
         this.renderNoteConfigs(containerEl);
     }
 
-    // 全局设置：模板插件类型
+    // 全局设置：模板插件类型 + 统计点配置
     private renderGlobalSettings(container: HTMLElement): void {
         new Setting(container).setName("全局设置").setHeading();
 
@@ -59,6 +59,47 @@ export class MainSettingTab extends PluginSettingTab {
                     settings.templatePlugin = type;
                     await this.plugin.database.saveSettings(settings);
                     this.plugin.templateService.setPlugin(type);
+                }));
+
+        // 统计点配置（旧数据可能缺字段，用 ?? 兜底）
+        new Setting(container).setName("笔记统计点").setHeading();
+
+        new Setting(container)
+            .setName("颜色")
+            .addText(text => text
+                .setValue(settings.dotColor ?? "#4A90D9")
+                .onChange(async value => {
+                    settings.dotColor = value || "#4A90D9";
+                    await this.plugin.database.saveSettings(settings);
+                    this.plugin.notifyViewRefresh();
+                }));
+
+        new Setting(container)
+            .setName("每个点的字数")
+            .addText(text => text
+                .setValue(String(settings.wordsPerDot ?? 100))
+                .setPlaceholder("100")
+                .onChange(async value => {
+                    const num = parseInt(value, 10);
+                    if (!isNaN(num) && num > 0) {
+                        settings.wordsPerDot = num;
+                        await this.plugin.database.saveSettings(settings);
+                        this.plugin.notifyViewRefresh();
+                    }
+                }));
+
+        new Setting(container)
+            .setName("最多显示点数")
+            .addText(text => text
+                .setValue(String(settings.dotUpperLimit ?? 3))
+                .setPlaceholder("3")
+                .onChange(async value => {
+                    const num = parseInt(value, 10);
+                    if (!isNaN(num) && num >= 0) {
+                        settings.dotUpperLimit = num;
+                        await this.plugin.database.saveSettings(settings);
+                        this.plugin.notifyViewRefresh();
+                    }
                 }));
     }
 

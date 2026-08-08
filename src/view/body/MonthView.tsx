@@ -1,4 +1,4 @@
-import { defineComponent, inject } from "vue";
+import { defineComponent, inject, ref, watch } from "vue";
 import { DateTime } from "luxon";
 import type MultiCalendarPlugin from "../../main";
 import { NoteType } from "src/base/types";
@@ -13,15 +13,19 @@ export default defineComponent({
         const viewStore = useViewStore();
         const plugin = inject<MultiCalendarPlugin>("plugin");
 
-        return () => {
-            const dt = viewStore.selectedDate;
+        // 日期字符串 → 统计点数（异步加载，响应式）
+        const dotMap = ref<Record<string, number>>({});
+        // 统计点颜色（从设置读取，响应式以便设置修改后刷新）
+        const dotColor = ref(plugin?.database.getSettings().dotColor ?? "");
+
+        // 生成 42 天日期数据
+        function buildDays(dt: DateTime) {
             const today = DateTime.now();
             const firstDay = DateTime.local(dt.year, dt.month, 1);
             const startWeekday = firstDay.weekday;
             const gridStart = firstDay.minus({ days: startWeekday - 1 });
 
-            // 生成 42 个日期格子的数据
-            const days: Array<{ day: number; date: DateTime; isCurrentMonth: boolean; isToday: boolean; isSelected: boolean; hasNote: boolean }> = [];
+            const days: Array<{ day: number; date: DateTime; isCurrentMonth: boolean; isToday: boolean; isSelected: boolean }> = [];
             for (let i = 0; i < 42; i++) {
                 const date = gridStart.plus({ days: i });
                 days.push({
@@ -30,14 +34,46 @@ export default defineComponent({
                     isCurrentMonth: date.month === dt.month && date.year === dt.year,
                     isToday: date.hasSame(today, "day"),
                     isSelected: date.hasSame(viewStore.selectedDate, "day"),
-                    hasNote: plugin?.noteService.hasNote(date, NoteType.DAILY) ?? false,
                 });
             }
+            return days;
+        }
 
+        // 异步计算 42 天的统计点数
+        async function loadDots(dt: DateTime) {
+            if (!plugin) return;
+            const days = buildDays(dt);
+            const map: Record<string, number> = {};
+            for (const d of days) {
+                const key = d.date.toFormat("yyyy-MM-dd");
+                const words = await plugin.noteService.countWords(d.date, NoteType.DAILY);
+                if (words > 0) {
+                    map[key] = plugin.noteService.getDotCount(words);
+                }
+            }
+            dotMap.value = map;
+        }
+
+        // 日期变化或刷新信号时重新加载统计点（设置改动会触发 forceFlush → flushCounter++）
+        watch(
+            () => viewStore.selectedDate.toFormat("yyyy-MM") + ":" + viewStore.flushCounter,
+            () => {
+                dotColor.value = plugin?.database.getSettings().dotColor ?? "";
+                loadDots(viewStore.selectedDate);
+            },
+            { immediate: true }
+        );
+
+        return () => {
+            const dt = viewStore.selectedDate;
+            const days = buildDays(dt);
             const weekLabels = ["周", "一", "二", "三", "四", "五", "六", "日"];
 
             return (
-                <div class="mc-month-grid">
+                <div
+                    class="mc-month-grid"
+                    style={dotColor.value ? { "--mc-dot-color": dotColor.value } : undefined}
+                >
                     {/* 表头行 */}
                     {weekLabels.map(label => (
                         <div class="mc-weekday-label" key={label}>{label}</div>
@@ -53,6 +89,7 @@ export default defineComponent({
                             />
                             {Array.from({ length: 7 }, (_, day) => {
                                 const d = days[week * 7 + day];
+                                const key = d.date.toFormat("yyyy-MM-dd");
                                 return (
                                     <DayCell
                                         date={d.date}
@@ -60,7 +97,7 @@ export default defineComponent({
                                         isCurrentMonth={d.isCurrentMonth}
                                         isToday={d.isToday}
                                         isSelected={d.isSelected}
-                                        hasNote={d.hasNote}
+                                        dotCount={dotMap.value[key] ?? 0}
                                         onSelect={(date) => viewStore.selectDate(date)}
                                         onOpen={(date) => {
                                             if (plugin) {

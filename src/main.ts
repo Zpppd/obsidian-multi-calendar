@@ -92,6 +92,8 @@ export default class MultiCalendarPlugin extends Plugin {
         for (const cb of this.refreshCallbacks) {
             cb();
         }
+        // 同时强制刷新（通知 Vue 组件重新读取设置，如统计点颜色/字数）
+        this.flushScheduler.forceFlush();
     }
 
     async onload(): Promise<void> {
