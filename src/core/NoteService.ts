@@ -52,12 +52,6 @@ export class NoteService {
         return this.plugin.app.vault.getAbstractFileByPath(path) instanceof TFile;
     }
 
-    // 获取模板文件名
-    getTemplateFile(noteType: NoteType): string | null {
-        const profile = this.plugin.calendarManager.getActiveProfile();
-        return profile.notes[noteType].templateFile || null;
-    }
-
     // 打开已有笔记，或创建新笔记
     async openOrCreate(date: DateTime, noteType: NoteType): Promise<void> {
         const path = this.getNotePath(date, noteType);
@@ -77,6 +71,8 @@ export class NoteService {
         const doCreate = async () => {
             await this.ensureFolder(path);
             const file = await this.plugin.app.vault.create(path, "");
+            // 创建后套用模板（若配置了模板文件）
+            await this.plugin.templateService.insertTemplate(file, noteType);
             await this.plugin.app.workspace.getLeaf(false).openFile(file);
         };
 

@@ -6,7 +6,9 @@ import { Database } from "./core/Database";
 import { createPinia } from "pinia";
 import { CalendarManager } from "./core/CalendarManager";
 import { NoteService } from "./core/NoteService";
+import { TemplateService } from "./core/TemplateService";
 import { useCalendarStore } from "./stores/calendarStore";
+import { MainSettingTab } from "./view/setting/MainSettingTab";
 
 // 视图类型 ID，registerView 和 setViewState 靠这个字符串对应
 const VIEW_TYPE = "multi-calendar-view";
@@ -63,12 +65,16 @@ export default class MultiCalendarPlugin extends Plugin {
     database!: Database;
     calendarManager!: CalendarManager;
     noteService!: NoteService;
+    templateService!: TemplateService;
 
     async onload(): Promise<void> {
         this.database = new Database(this);
         await this.database.init();
         this.calendarManager = new CalendarManager(this.database);
         this.noteService = new NoteService(this);
+        this.templateService = new TemplateService(this);
+        // 注册设置面板
+        this.addSettingTab(new MainSettingTab(this.app, this));
         // 注册视图类型：告诉 Obsidian 这个 type 对应哪个视图类
         this.registerView(VIEW_TYPE, (leaf) => new CalendarView(leaf, this));
 
