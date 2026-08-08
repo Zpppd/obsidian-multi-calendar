@@ -1,35 +1,17 @@
 import { defineComponent, ref } from "vue";
 import { DateTime } from "luxon";
+import { useCalendarStore } from "../stores/calendarStore";
+import { useViewStore } from "../stores/viewStore";
+import DayCell from "./body/DayCell";
 
 export default defineComponent({
     name: "App",
     setup() {
-        // 当前显示的日期（响应式，导航用）
-        const displayDate = ref(DateTime.now());
-        function goToPrevYear() {
-            displayDate.value = displayDate.value.minus({ years: 1 });
-        }
-        function goToNextYear() {
-            displayDate.value = displayDate.value.plus({ years: 1 });
-        }
-        function goToPrevMonth() {
-            displayDate.value = displayDate.value.minus({ months: 1 });
-        }
-        function goToNextMonth() {
-            displayDate.value = displayDate.value.plus({ months: 1 });
-        }
-        function goToToday() {
-            displayDate.value = DateTime.now();
-        }
-        function goToPrevCalendar() {
-        }
-        function goToNextCalendar() {
-        }
-        function toggleCalendarMenu() {
-        }
+        const calendarStore = useCalendarStore();
+        const viewStore = useViewStore();
 
         return () => {
-            const dt = displayDate.value;
+            const dt = viewStore.selectedDate;
             const today = DateTime.now();
             const firstDay = DateTime.local(dt.year, dt.month, 1);
             const startWeekday = firstDay.weekday;
@@ -48,30 +30,31 @@ export default defineComponent({
             }
 
             const weekLabels = ['周', '一', '二', '三', '四', '五', '六', '日'];
+            const calendarName = calendarStore.activeProfile?.name ?? '';
 
             return (
                 <div class="mc-container">
                     <div class="mc-header">
                         <div class="mc-header-col">
                             <div class="mc-header-row">
-                                <span class="mc-header-btn" onClick={goToPrevCalendar}>{"<"}</span>
-                                <span class="mc-header-calendar-name" onClick={toggleCalendarMenu}>默认日历</span>
-                                <span class="mc-header-btn" onClick={goToNextCalendar}>{">"}</span>
+                                <span class="mc-header-btn" onClick={() => calendarStore.switchToPrev()}>{"<"}</span>
+                                <span class="mc-header-calendar-name">{calendarName}</span>
+                                <span class="mc-header-btn" onClick={() => calendarStore.switchToNext()}>{">"}</span>
                             </div>
                             <div class="mc-header-row">
-                                <span class="mc-header-btn" onClick={goToPrevYear}>{"<"}</span>
+                                <span class="mc-header-btn" onClick={() => viewStore.goToPrevYear()}>{"<"}</span>
                                 <span class="mc-header-nav-label">{dt.year}年</span>
-                                <span class="mc-header-btn" onClick={goToNextYear}>{">"}</span>
+                                <span class="mc-header-btn" onClick={() => viewStore.goToNextYear()}>{">"}</span>
                             </div>
                         </div>
                         <div class="mc-header-col">
                             <div class="mc-header-row">
-                                <span class="mc-header-btn" onClick={goToToday}>今</span>
+                                <span class="mc-header-btn" onClick={() => viewStore.goToToday()}>今</span>
                             </div>
                             <div class="mc-header-row">
-                                <span class="mc-header-btn" onClick={goToPrevMonth}>{"<"}</span>
+                                <span class="mc-header-btn" onClick={() => viewStore.goToPrevMonth()}>{"<"}</span>
                                 <span class="mc-header-nav-label">{dt.month}月</span>
-                                <span class="mc-header-btn" onClick={goToNextMonth}>{">"}</span>
+                                <span class="mc-header-btn" onClick={() => viewStore.goToNextMonth()}>{">"}</span>
                             </div>
                         </div>
                     </div>
@@ -86,8 +69,16 @@ export default defineComponent({
                                 <div class="mc-week-index">{days[week * 7].date.weekNumber}</div>
                                 {Array.from({ length: 7 }, (_, day) => {
                                     const d = days[week * 7 + day];
-                                    const cls = ["mc-day-cell", !d.isCurrentMonth && "mc-day-cell--other-month", d.isToday && "mc-day-cell--today"].filter(Boolean).join(" ");
-                                    return <div class={cls}>{d.day}</div>;
+                                    return (
+                                        <DayCell
+                                            date={d.date}
+                                            day={d.day}
+                                            isCurrentMonth={d.isCurrentMonth}
+                                            isToday={d.isToday}
+                                            isSelected={false}
+                                            onSelect={(date) => viewStore.selectDate(date)}
+                                        />
+                                    )
                                 })}
                             </>
                         ))}

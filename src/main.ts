@@ -2,7 +2,10 @@ import { Plugin, ItemView, WorkspaceLeaf } from "obsidian";
 import { DateTime } from "luxon";
 import { createApp, App as VueApp } from "vue";
 import App from "./view/App";
-
+import { Database } from "./core/Database";
+import { createPinia } from "pinia";
+import { CalendarManager } from "./core/CalendarManager";
+import { useCalendarStore } from "./stores/calendarStore";
 
 // 视图类型 ID，registerView 和 setViewState 靠这个字符串对应
 const VIEW_TYPE = "multi-calendar-view";
@@ -10,9 +13,11 @@ const VIEW_TYPE = "multi-calendar-view";
 // 自定义面板：继承 ItemView，在 Obsidian 右侧栏显示一个内容区域
 class CalendarView extends ItemView {
     private vueApp: VueApp | null = null;
+    private plugin: MultiCalendarPlugin;
 
-    constructor(leaf: WorkspaceLeaf) {
+    constructor(leaf: WorkspaceLeaf, plugin: MultiCalendarPlugin) {
         super(leaf);
+        this.plugin = plugin;
     }
 
     // 返回视图类型 ID，Obsidian 用它匹配已注册的视图
@@ -32,7 +37,17 @@ class CalendarView extends ItemView {
 
     // 面板被打开时触发，在这里渲染内容
     async onOpen(): Promise<void> {
+        const pinia = createPinia();
+        const calendarManager = new CalendarManager(this.plugin.database);
+
+        // 初始化 store
+        const calendarStore = useCalendarStore();
+        calendarStore.init(calendarManager);
+
         this.vueApp = createApp(App);
+        this.vueApp.use(pinia);
+        // 将插件实例传给 Vue 组件，方便在组件中调用插件方法
+        this.vueApp.provide("plugin", this.plugin);
         this.vueApp.mount(this.contentEl);
     }
 
@@ -40,13 +55,18 @@ class CalendarView extends ItemView {
     async onClose(): Promise<void> {
         this.vueApp?.unmount();
     }
+
 }
 
 // 插件入口类，Obsidian 加载插件时 new 一个实例，然后调 onload()
 export default class MultiCalendarPlugin extends Plugin {
+    database!: Database;
+
     async onload(): Promise<void> {
+        this.database = new Database(this);
+        await this.database.init();
         // 注册视图类型：告诉 Obsidian 这个 type 对应哪个视图类
-        this.registerView(VIEW_TYPE, (leaf) => new CalendarView(leaf));
+        this.registerView(VIEW_TYPE, (leaf) => new CalendarView(leaf, this));
 
         this.app.workspace.onLayoutReady(async () => {
             const existing = this.app.workspace.getLeavesOfType(VIEW_TYPE);
