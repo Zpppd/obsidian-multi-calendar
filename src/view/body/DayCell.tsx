@@ -18,7 +18,7 @@ export default defineComponent({
         },
         isToday: {
             type: Boolean,
-            default: true
+            default: false
         },
         isSelected: {
             type: Boolean,

@@ -6,19 +6,33 @@
 
 .mc-header {
     display: flex;
-    justify-content: space-around;
-    padding: 8px 0;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
     border-bottom: 1px solid var(--background-modifier-border);
     margin-bottom: 4px;
     flex-shrink: 0;
     font-size: 16px;
 }
 
-.mc-header-col {
+/* 日历切换器：◀ 名称 ▶ [+] */
+.mc-calendar-switcher {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
+    min-width: 0;
+}
+
+/* 新增日历按钮 */
+.mc-header-btn--add {
+    font-weight: 600;
+}
+
+/* 日期导航器：◀ 年 ▶ | [今] | ◀ 月 ▶ */
+.mc-date-navigator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .mc-header-row {
@@ -60,6 +74,13 @@
 .mc-header-btn:hover {
     background: var(--background-modifier-hover);
     color: var(--text-normal);
+}
+
+/* 新增日历按钮 — 稍大、加粗，视觉上区别于导航箭头 */
+.mc-header-btn--add {
+    font-size: 18px;
+    font-weight: 600;
+    margin-left: 4px;
 }
 
 /* 月视图 — 8 列 Grid：第 1 列短（星期表头），后 7 列等宽 */
@@ -113,4 +134,11 @@
     color: var(--text-muted);
     cursor: pointer;
     height: 100%;
+}
+
+/* 占位区域（年视图等未实现模块） */
+.mc-placeholder {
+    padding: 40px;
+    text-align: center;
+    color: var(--text-muted);
 }
