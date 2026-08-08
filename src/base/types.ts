@@ -10,5 +10,5 @@ export enum NoteType {
 // 视图模式
 export type CalendarViewMode = "month" | "year";
 
-// 模板插件类型
-export type TemplatePluginType = "templater" | "obsidian" | "none";
+// 模板插件类型（默认 Obsidian 核心模板）
+export type TemplatePluginType = "obsidian" | "templater";

@@ -1,21 +1,31 @@
-import { TFile, normalizePath } from "obsidian";
+import { TFile } from "obsidian";
 import type MultiCalendarPlugin from "../main";
 import { TemplateUtil } from "./TemplateUtil";
 
-// Templater 社区插件适配：模板文件放在 Templater 的"模板文件夹"配置里
+// Templater 社区插件适配：调用 Templater 的 append_template_to_active_file 执行模板（会解析 <% tp... %>）
 export class TemplaterUtil extends TemplateUtil {
+    private folder: string;
+
     constructor(plugin: MultiCalendarPlugin) {
         super(plugin);
-    }
-
-    findTemplateFile(templateName: string): TFile | null {
         // 读取 Templater 插件的 templates_folder 配置
         // （plugins 不在 App 的类型定义里，运行时存在，故用断言访问）
-        const plugins = (this.plugin.app as unknown as { plugins: { plugins: Record<string, unknown> } }).plugins.plugins;
+        const plugins = (plugin.app as unknown as { plugins: { plugins: Record<string, unknown> } }).plugins.plugins;
         const templater = plugins["templater-obsidian"];
-        const folder = (templater as { settings?: { templates_folder?: string } } | undefined)?.settings?.templates_folder ?? "";
-        const path = normalizePath(folder ? `${folder}/${templateName}` : templateName);
-        const file = this.plugin.app.vault.getAbstractFileByPath(path);
-        return file instanceof TFile ? file : null;
+        this.folder = (templater as { settings?: { templates_folder?: string } } | undefined)?.settings?.templates_folder ?? "";
+    }
+
+    resolveTemplatePath(templateName: string): string {
+        return this.folder ? `${this.folder}/${templateName}` : templateName;
+    }
+
+    // 调用 Templater 的 append_template_to_active_file，让插件执行模板并追加到当前活动笔记
+    async insertTemplateIntoActiveNote(templateFile: TFile): Promise<void> {
+        const templaterPlugin = (this.plugin.app as unknown as {
+            plugins: { plugins: { "templater-obsidian"?: { templater: { append_template_to_active_file(file: TFile): Promise<void> } } } };
+        }).plugins.plugins["templater-obsidian"];
+        if (templaterPlugin) {
+            await templaterPlugin.templater.append_template_to_active_file(templateFile);
+        }
     }
 }

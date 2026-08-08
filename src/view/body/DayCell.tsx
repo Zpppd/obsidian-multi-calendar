@@ -1,4 +1,4 @@
-import { defineComponent, DefineComponent, type PropType } from "vue";
+import { defineComponent, type PropType } from "vue";
 import { DateTime } from "luxon";
 
 export default defineComponent({
@@ -23,6 +23,10 @@ export default defineComponent({
         isSelected: {
             type: Boolean,
             default: false
+        },
+        hasNote: {
+            type: Boolean,
+            default: false
         }
     },
     emits: ["select", "open"],
@@ -42,6 +46,7 @@ export default defineComponent({
                     onDblclick={() => emit("open", props.date)}
                 >
                     <span class="mc-day-cell-number">{props.day}</span>
+                    {props.hasNote && <span class="mc-day-cell-dot" />}
                 </div>
             )
         }

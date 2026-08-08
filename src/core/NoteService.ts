@@ -1,7 +1,8 @@
-import { TFile, Modal, normalizePath } from "obsidian";
+import { TFile, Modal, normalizePath, Notice } from "obsidian";
 import { DateTime } from "luxon";
 import type MultiCalendarPlugin from "../main";
 import type { NoteType } from "src/base/types";
+import { formatMoment } from "../util/momentFormat";
 
 // 创建笔记前的确认弹窗
 class ConfirmModal extends Modal {
@@ -41,7 +42,8 @@ export class NoteService {
         if (!config.enabled || !config.pathPattern) {
             return null;
         }
-        const folderAndName = date.toFormat(config.pathPattern);
+        // 路径规则使用 moment 语法（与 Obsidian 原生日记一致，支持 dddd 等）
+        const folderAndName = formatMoment(date.toJSDate(), config.pathPattern);
         return normalizePath(`${folderAndName}.md`);
     }
 
@@ -56,6 +58,7 @@ export class NoteService {
     async openOrCreate(date: DateTime, noteType: NoteType): Promise<void> {
         const path = this.getNotePath(date, noteType);
         if (!path) {
+            new Notice("未配置该笔记类型的路径规则，或未启用。请到设置中配置。");
             return;
         }
 
@@ -71,15 +74,19 @@ export class NoteService {
         const doCreate = async () => {
             await this.ensureFolder(path);
             const file = await this.plugin.app.vault.create(path, "");
-            // 创建后套用模板（若配置了模板文件）
-            await this.plugin.templateService.insertTemplate(file, noteType);
+            // 先打开笔记成为活动笔记，再插入模板（模板插件通过 activeEditor 定位插入点）
             await this.plugin.app.workspace.getLeaf(false).openFile(file);
+            await this.plugin.templateService.insertTemplate(noteType);
         };
 
-        if (settings.shouldConfirmBeforeCreate) {
-            new ConfirmModal(this.plugin, doCreate).open();
-        } else {
-            await doCreate();
+        try {
+            if (settings.shouldConfirmBeforeCreate) {
+                new ConfirmModal(this.plugin, doCreate).open();
+            } else {
+                await doCreate();
+            }
+        } catch (e) {
+            new Notice(`创建笔记失败：${(e as Error).message}`);
         }
     }
 

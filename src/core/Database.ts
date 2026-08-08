@@ -27,7 +27,7 @@ export class Database{
                 calendars: [defaultProfile],
                 activeCalendarId: defaultProfile.id,
                 shouldConfirmBeforeCreate: false,
-                templatePlugin: "none"
+                templatePlugin: "obsidian"
             };
             await this.adapter.saveData(this.settings);
         }

@@ -23,11 +23,6 @@
     min-width: 0;
 }
 
-/* 新增日历按钮 */
-.mc-header-btn--add {
-    font-weight: 600;
-}
-
 /* 日期导航器：◀ 年 ▶ | [今] | ◀ 月 ▶ */
 .mc-date-navigator {
     display: flex;
@@ -76,13 +71,6 @@
     color: var(--text-normal);
 }
 
-/* 新增日历按钮 — 稍大、加粗，视觉上区别于导航箭头 */
-.mc-header-btn--add {
-    font-size: 18px;
-    font-weight: 600;
-    margin-left: 4px;
-}
-
 /* 月视图 — 8 列 Grid：第 1 列短（星期表头），后 7 列等宽 */
 .mc-month-grid {
     display: grid;
@@ -103,12 +91,23 @@
 .mc-day-cell {
     aspect-ratio: 1;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 2px;
     border-radius: 4px;
     cursor: pointer;
     font-size: 13px;
     min-height: 30px;
+}
+
+/* 笔记统计点：当日有笔记时显示 */
+.mc-day-cell-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--interactive-accent);
+    flex-shrink: 0;
 }
 
 .mc-day-cell:hover {
@@ -120,10 +119,16 @@
     color: var(--text-faint);
 }
 
-/* 今天 — 蓝色高亮 */
+/* 今天 — 蓝色加粗 */
 .mc-day-cell--today {
     font-weight: bold;
     color: var(--interactive-accent);
+}
+
+/* 选中 — 蓝色背景高亮 */
+.mc-day-cell--selected {
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
 }
 
 .mc-week-index {
@@ -134,6 +139,12 @@
     color: var(--text-muted);
     cursor: pointer;
     height: 100%;
+    border-radius: 4px;
+}
+
+.mc-week-index:hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
 }
 
 /* 年视图：3 列网格，每列一个缩略月卡片 */

@@ -7,7 +7,9 @@ import { createPinia } from "pinia";
 import { CalendarManager } from "./core/CalendarManager";
 import { NoteService } from "./core/NoteService";
 import { TemplateService } from "./core/TemplateService";
+import { FlushScheduler } from "./core/FlushScheduler";
 import { useCalendarStore } from "./stores/calendarStore";
+import { useViewStore } from "./stores/viewStore";
 import { MainSettingTab } from "./view/setting/MainSettingTab";
 
 // 视图类型 ID，registerView 和 setViewState 靠这个字符串对应
@@ -45,6 +47,15 @@ class CalendarView extends ItemView {
         // 初始化 store：显式传入 pinia 实例，Pinia 才能找到它
         const calendarStore = useCalendarStore(pinia);
         calendarStore.init(this.plugin.calendarManager);
+        const viewStore = useViewStore(pinia);
+
+        // FlushScheduler 触发视图刷新（笔记增删改后防抖刷新）
+        this.plugin.flushScheduler.onFlush(() => viewStore.triggerFlush());
+
+        // 设置面板修改数据后，通过 plugin 刷新此视图的 store
+        this.plugin.onViewRefresh(() => {
+            calendarStore.refresh();
+        });
 
         this.vueApp = createApp(App);
         this.vueApp.use(pinia);
@@ -66,6 +77,22 @@ export default class MultiCalendarPlugin extends Plugin {
     calendarManager!: CalendarManager;
     noteService!: NoteService;
     templateService!: TemplateService;
+    flushScheduler!: FlushScheduler;
+
+    // 视图刷新回调：设置面板修改数据后，通知所有打开的日历视图刷新 store
+    private refreshCallbacks: Set<() => void> = new Set();
+
+    // 注册视图刷新回调（CalendarView 打开时调用）
+    onViewRefresh(callback: () => void): void {
+        this.refreshCallbacks.add(callback);
+    }
+
+    // 触发所有视图刷新（设置面板修改数据后调用）
+    notifyViewRefresh(): void {
+        for (const cb of this.refreshCallbacks) {
+            cb();
+        }
+    }
 
     async onload(): Promise<void> {
         this.database = new Database(this);
@@ -73,6 +100,7 @@ export default class MultiCalendarPlugin extends Plugin {
         this.calendarManager = new CalendarManager(this.database);
         this.noteService = new NoteService(this);
         this.templateService = new TemplateService(this);
+        this.flushScheduler = new FlushScheduler(this);
         // 注册设置面板
         this.addSettingTab(new MainSettingTab(this.app, this));
         // 注册视图类型：告诉 Obsidian 这个 type 对应哪个视图类
@@ -93,5 +121,7 @@ export default class MultiCalendarPlugin extends Plugin {
         })
     }
 
-    async onunload(): Promise<void> { }
+    async onunload(): Promise<void> {
+        this.flushScheduler.dispose();
+    }
 }

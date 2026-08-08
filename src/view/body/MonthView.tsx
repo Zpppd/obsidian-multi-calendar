@@ -4,6 +4,7 @@ import type MultiCalendarPlugin from "../../main";
 import { NoteType } from "src/base/types";
 import { useViewStore } from "../../stores/viewStore";
 import DayCell from "./DayCell";
+import WeekIndexCell from "./WeekIndexCell";
 
 // 月视图：CSS Grid，周序号列 + 7 列日期，最多 6 行
 export default defineComponent({
@@ -20,7 +21,7 @@ export default defineComponent({
             const gridStart = firstDay.minus({ days: startWeekday - 1 });
 
             // 生成 42 个日期格子的数据
-            const days: Array<{ day: number; date: DateTime; isCurrentMonth: boolean; isToday: boolean; isSelected: boolean }> = [];
+            const days: Array<{ day: number; date: DateTime; isCurrentMonth: boolean; isToday: boolean; isSelected: boolean; hasNote: boolean }> = [];
             for (let i = 0; i < 42; i++) {
                 const date = gridStart.plus({ days: i });
                 days.push({
@@ -29,6 +30,7 @@ export default defineComponent({
                     isCurrentMonth: date.month === dt.month && date.year === dt.year,
                     isToday: date.hasSame(today, "day"),
                     isSelected: date.hasSame(viewStore.selectedDate, "day"),
+                    hasNote: plugin?.noteService.hasNote(date, NoteType.DAILY) ?? false,
                 });
             }
 
@@ -44,8 +46,11 @@ export default defineComponent({
                     {/* 数据行：6 周，每周 7 天 */}
                     {Array.from({ length: 6 }, (_, week) => (
                         <>
-                            {/* 周序号：该周第一个日期 */}
-                            <div class="mc-week-index">{days[week * 7].date.weekNumber}</div>
+                            {/* 周序号：单击选中周，双击开周记 */}
+                            <WeekIndexCell
+                                weekNumber={days[week * 7].date.weekNumber}
+                                monday={days[week * 7].date}
+                            />
                             {Array.from({ length: 7 }, (_, day) => {
                                 const d = days[week * 7 + day];
                                 return (
@@ -55,6 +60,7 @@ export default defineComponent({
                                         isCurrentMonth={d.isCurrentMonth}
                                         isToday={d.isToday}
                                         isSelected={d.isSelected}
+                                        hasNote={d.hasNote}
                                         onSelect={(date) => viewStore.selectDate(date)}
                                         onOpen={(date) => {
                                             if (plugin) {
