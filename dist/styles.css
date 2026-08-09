@@ -365,59 +365,21 @@
 }
 
 .mc-month-card {
-    /* 与月视图一致的开放风格：无边框、无背景，靠间距和标题分隔 */
-    padding: 4px;
-}
-
-.mc-month-card-title {
-    font-size: 13px;
-    font-weight: 600;
-    text-align: center;
-    padding: 4px 0 6px;
-    color: var(--text-normal);
-    cursor: pointer;
-    border-radius: 4px;
-}
-
-.mc-month-card-title:hover {
-    background: var(--background-modifier-hover);
-}
-
-/* 缩略月卡片内的小日历：7 列 */
-.mc-month-card-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 2px;
-}
-
-.mc-month-card-weekday {
-    text-align: center;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    padding: 2px 0;
-}
-
-.mc-month-card-day {
-    aspect-ratio: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
-    color: var(--text-normal);
-    border-radius: 4px;
+    padding: 16px 4px;
+    border-radius: var(--radius-m);
     cursor: pointer;
+    transition: background 0.15s;
 }
 
-.mc-month-card-day:hover {
+.mc-month-card:hover {
     background: var(--background-modifier-hover);
 }
 
-.mc-month-card-day--other {
-    color: var(--text-faint);
-}
-
-.mc-month-card-day--today {
-    font-weight: bold;
-    color: var(--interactive-accent);
+.mc-month-card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-normal);
 }
