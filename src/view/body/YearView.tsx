@@ -5,7 +5,7 @@ import { NoteType } from "src/base/types";
 import { useViewStore } from "../../stores/viewStore";
 import MonthCard from "./MonthCard";
 
-// 年视图：年份标题 + 12 个缩略月卡片
+// 年视图：年份标题 + 12 个缩略月卡片（主要用于切换月份/年份）
 export default defineComponent({
     name: "YearView",
     setup() {

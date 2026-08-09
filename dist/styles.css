@@ -179,6 +179,25 @@
     background: var(--background-modifier-hover);
 }
 
+/* 季度标签（月视图导航栏）：双击开季记 */
+.mc-header-quarter-row {
+    margin-left: 4px;
+}
+
+.mc-header-quarter {
+    min-width: auto;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
+.mc-header-quarter:hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
 .mc-month-card {
     /* 与月视图一致的开放风格：无边框、无背景，靠间距和标题分隔 */
     padding: 4px;

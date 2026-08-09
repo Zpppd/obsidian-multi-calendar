@@ -23,6 +23,19 @@ const NOTE_TYPES: Array<{ type: NoteType; label: string }> = [
     { type: NoteType.YEARLY, label: "每年笔记" },
 ];
 
+// 每种笔记类型的常用路径示例（moment 语法）
+const PATH_EXAMPLES: Record<NoteType, string> = {
+    [NoteType.DAILY]: "日记/yyyy-MM-dd dddd",
+    [NoteType.WEEKLY]: "日记/yyyy年/第WW周",
+    [NoteType.MONTHLY]: "日记/yyyy年MM月",
+    [NoteType.QUARTERLY]: "日记/yyyy年/[第]Q[季度]",
+    [NoteType.YEARLY]: "日记/yyyy年",
+};
+
+// moment 语法速查（鼠标悬停显示完整提示）
+// 说明：moment 中方括号 [...] 内的文字原样输出，如 第Q季度 → 第1季度
+const TOKEN_HINTS = "语法：yyyy=年, MM=月, DD=日, dddd=星期几, WW=周数, Q=季度; 方括号内文字原样输出，如 日记/yyyy年/[第]Q[季度] → 日记/2026年/第3季度";
+
 // 设置面板：日历管理 + 笔记配置
 export class MainSettingTab extends PluginSettingTab {
     private plugin: MultiCalendarPlugin;
@@ -219,29 +232,47 @@ export class MainSettingTab extends PluginSettingTab {
             .setName(label)
             .setHeading();
 
-        new Setting(container)
+        const enableSetting = new Setting(container)
             .setName("启用")
             .setDesc(config.enabled ? "已启用" : "已停用")
             .addToggle(toggle => toggle
                 .setValue(config.enabled)
-                .onChange(value => patchNote({ enabled: value })));
+                .onChange(value => {
+                    patchNote({ enabled: value });
+                    // 同步更新描述文字
+                    enableSetting.descEl.setText(value ? "已启用" : "已停用");
+                }));
 
         const pathSetting = new Setting(container)
             .setName("路径规则")
-            .setDesc("使用 moment 格式（与 Obsidian 原生日记一致），如 日记/yyyy-MM-dd dddd");
+            .setDesc("");
+
+        // 示例 + 语法速查（悬停显示完整说明）
+        pathSetting.descEl.empty();
+        pathSetting.descEl.createSpan({
+            text: `示例：${PATH_EXAMPLES[type]}`,
+        }).addEventListener("mouseenter", e => { void e; });
+        pathSetting.descEl.createEl("br");
+        pathSetting.descEl.createEl("small", {
+            text: "语法：yyyy=年 MM=月 DD=日 dddd=星期几 WW=周数 Q=季度",
+            attr: { title: TOKEN_HINTS },
+        });
+
+        // 输入框 + 实时预览
+        const previewEl = pathSetting.descEl.createEl("br");
+        const previewSpan = pathSetting.descEl.createSpan({
+            text: this.pathPreviewText(config.pathPattern),
+        });
 
         pathSetting.addText(text => text
             .setValue(config.pathPattern)
             .setPlaceholder("日记/yyyy-MM-dd")
             .onChange(value => {
                 patchNote({ pathPattern: value });
-                // 实时刷新预览（desc 在 onChange 里每次 setDesc 会追加，需先清空）
-                pathSetting.descEl.empty();
-                pathSetting.descEl.createSpan({ text: this.pathPreviewText(value) });
+                previewSpan.setText(this.pathPreviewText(value));
             }));
 
-        // 初始化时也显示预览
-        pathSetting.descEl.createSpan({ text: this.pathPreviewText(config.pathPattern) });
+        void previewEl;
 
         new Setting(container)
             .setName("模板文件")
