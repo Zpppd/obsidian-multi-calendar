@@ -1,57 +1,76 @@
+/* 整个日历面板的最小宽度（窄侧边栏下保持可读，超出可横向滚动） */
 .mc-container {
     display: flex;
     flex-direction: column;
     height: 100%;
+    min-width: 240px;
+    overflow-x: auto;
 }
 
+/* Header：两行堆叠 */
 .mc-header {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px;
-    border-bottom: 1px solid var(--background-modifier-border);
-    margin-bottom: 4px;
-    flex-shrink: 0;
-    font-size: 16px;
-}
-
-/* 日历切换器：◀ 名称 ▶ [+] */
-.mc-calendar-switcher {
-    display: flex;
-    align-items: center;
+    flex-direction: column;
     gap: 6px;
-    min-width: 0;
-}
-
-/* 日期导航器：◀ 年 ▶ | [今] | ◀ 月 ▶ */
-.mc-date-navigator {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    flex-shrink: 0;
 }
 
 .mc-header-row {
     display: flex;
     align-items: center;
-    gap: 4px;
+    justify-content: space-between;
+    gap: 12px;
 }
 
-.mc-header-calendar-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-normal);
-    max-width: 75%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+/* 下行：左翻月标题 · 右今/视图 */
+.mc-header-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
 }
 
-.mc-header-nav-label {
-    font-size: 14px;
-    font-weight: 500;
+.mc-header-center {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.mc-header-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* 大标题：比旧版更大更粗，作视觉主角 */
+.mc-header-title {
+    font-size: 16px;
+    font-weight: 700;
     color: var(--text-normal);
-    min-width: 50px;
-    text-align: center;
+    cursor: pointer;
+    border-radius: var(--radius-s);
+    padding: 0 4px;
+}
+
+.mc-header-title:hover {
+    background: var(--background-modifier-hover);
+}
+
+/* 细箭头：统一控件视觉语言，小、淡，hover 才加深 */
+.mc-chev {
+    font-size: 15px;
+    line-height: 1;
+    color: var(--text-faint);
+    padding: 0 4px;
+    border-radius: var(--radius-s);
+    cursor: pointer;
+}
+
+.mc-chev:hover {
+    color: var(--text-normal);
+    background: var(--background-modifier-hover);
 }
 
 .mc-header-btn {
@@ -69,6 +88,125 @@
 .mc-header-btn:hover {
     background: var(--background-modifier-hover);
     color: var(--text-normal);
+}
+
+/* 今按钮 */
+.mc-header-today {
+    padding: 0 4px;
+    border-radius: var(--radius-s);
+}
+
+/* 月|年 segmented：无边框平铺切换，激活项 accent 高亮（用 span，避免 button 默认样式） */
+.mc-seg {
+    display: inline-flex;
+    gap: 4px;
+}
+
+.mc-seg-item {
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: 1px 6px;
+    border-radius: var(--radius-s);
+    cursor: pointer;
+}
+
+.mc-seg-item:hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+.mc-seg-item.on {
+    color: var(--interactive-accent);
+    font-weight: 700;
+}
+
+/* 季度条：‹ 秋季 ›，前后切换季度 */
+.mc-season-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.mc-season-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-normal);
+    cursor: pointer;
+    padding: 0 4px;
+    border-radius: var(--radius-s);
+}
+
+.mc-season-label:hover {
+    background: var(--background-modifier-hover);
+}
+
+/* 左胶囊：日历切换 */
+.mc-cal-switcher {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    position: relative;
+    padding: 2px 8px;
+    border-radius: var(--radius-s);
+}
+
+.mc-cal-switcher:hover {
+    background: var(--background-modifier-hover);
+}
+
+.mc-cal-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.mc-cal-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-normal);
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.mc-cal-caret {
+    font-size: 9px;
+    color: var(--text-muted);
+}
+
+/* 下拉菜单：绝对定位 */
+.mc-cal-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 4px;
+    min-width: 120px;
+    background: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-m);
+    box-shadow: var(--shadow-s, 0 3px 12px rgba(0, 0, 0, 0.15));
+    padding: 4px;
+    z-index: 10;
+}
+
+.mc-cal-menu-item {
+    padding: 4px 8px;
+    border-radius: var(--radius-s);
+    font-size: 12px;
+    cursor: pointer;
+    color: var(--text-normal);
+}
+
+.mc-cal-menu-item:hover {
+    background: var(--background-modifier-hover);
+}
+
+.mc-cal-menu-item.on {
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
 }
 
 /* 月视图 — 8 列 Grid：第 1 列短（星期表头），后 7 列等宽 */
@@ -209,6 +347,10 @@
 /* 年份标题：占满整行，双击开年记 */
 .mc-year-title {
     grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
     font-size: 16px;
     font-weight: 600;
     text-align: center;
@@ -220,25 +362,6 @@
 
 .mc-year-title:hover {
     background: var(--background-modifier-hover);
-}
-
-/* 季度标签（月视图导航栏）：双击开季记 */
-.mc-header-quarter-row {
-    margin-left: 4px;
-}
-
-.mc-header-quarter {
-    min-width: auto;
-    font-size: 12px;
-    color: var(--text-muted);
-    cursor: pointer;
-    padding: 1px 6px;
-    border-radius: 4px;
-}
-
-.mc-header-quarter:hover {
-    background: var(--background-modifier-hover);
-    color: var(--text-normal);
 }
 
 .mc-month-card {

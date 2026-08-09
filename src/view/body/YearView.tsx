@@ -27,8 +27,10 @@ export default defineComponent({
 
             return (
                 <div class="mc-year-view">
-                    <div class="mc-year-title" onDblclick={openYearlyNote}>
-                        {year}年
+                    <div class="mc-year-title">
+                        <span class="mc-chev" onClick={() => viewStore.goToPrevYear()}>‹</span>
+                        <span onDblclick={openYearlyNote}>{year}年</span>
+                        <span class="mc-chev" onClick={() => viewStore.goToNextYear()}>›</span>
                     </div>
                     {months.map((month, i) => (
                         <MonthCard month={month} key={i} />

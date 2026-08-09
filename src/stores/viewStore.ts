@@ -26,6 +26,19 @@ export const useViewStore = defineStore("view", () => {
         viewMode.value = viewMode.value === "month" ? "year" : "month";
     }
 
+    function setViewMode(mode: CalendarViewMode) {
+        viewMode.value = mode;
+    }
+
+    // 前/后一个季度（±3 个月，跨年自动，Q1↔Q4 循环）
+    function goToPrevQuarter() {
+        selectedDate.value = selectedDate.value.minus({ months: 3 });
+    }
+
+    function goToNextQuarter() {
+        selectedDate.value = selectedDate.value.plus({ months: 3 });
+    }
+
     function triggerFlush() {
         flushCounter.value++;
     }
@@ -52,7 +65,8 @@ export const useViewStore = defineStore("view", () => {
 
     return {
         selectedDate, viewMode, flushCounter, selectedByWeek,
-        selectDate, selectWeek, toggleViewMode, triggerFlush, goToToday,
+        selectDate, selectWeek, toggleViewMode, setViewMode, triggerFlush, goToToday,
         goToPrevMonth, goToNextMonth, goToPrevYear, goToNextYear,
+        goToPrevQuarter, goToNextQuarter,
     };
 })
