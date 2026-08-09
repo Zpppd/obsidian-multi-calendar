@@ -24,6 +24,10 @@ export default defineComponent({
             type: Boolean,
             default: false
         },
+        isInSelectedWeek: {
+            type: Boolean,
+            default: false
+        },
         dotCount: {
             type: Number,
             default: 0
@@ -63,6 +67,7 @@ export default defineComponent({
                 !props.isCurrentMonth && "mc-day-cell--other-month",
                 props.isToday && "mc-day-cell--today",
                 props.isSelected && "mc-day-cell--selected",
+                props.isInSelectedWeek && "mc-day-cell--week-selected",
             ].filter(Boolean).join(" ");
 
             // 优先显示节假日名，其次农历节日，最后农历日

@@ -28,7 +28,7 @@ export default defineComponent({
             const startWeekday = firstDay.weekday;
             const gridStart = firstDay.minus({ days: startWeekday - 1 });
 
-            const days: Array<{ day: number; date: DateTime; isCurrentMonth: boolean; isToday: boolean; isSelected: boolean }> = [];
+            const days: Array<{ day: number; date: DateTime; isCurrentMonth: boolean; isToday: boolean; isSelected: boolean; isInSelectedWeek: boolean }> = [];
             for (let i = 0; i < 42; i++) {
                 const date = gridStart.plus({ days: i });
                 days.push({
@@ -37,6 +37,8 @@ export default defineComponent({
                     isCurrentMonth: date.month === dt.month && date.year === dt.year,
                     isToday: date.hasSame(today, "day"),
                     isSelected: date.hasSame(viewStore.selectedDate, "day"),
+                    // 仅当通过周序号选中时才整周高亮
+                    isInSelectedWeek: viewStore.selectedByWeek && date.hasSame(viewStore.selectedDate, "week"),
                 });
             }
             return days;
@@ -123,6 +125,7 @@ export default defineComponent({
                             <WeekIndexCell
                                 weekNumber={days[week * 7].date.weekNumber}
                                 monday={days[week * 7].date}
+                                isSelected={viewStore.selectedByWeek && days[week * 7].date.hasSame(viewStore.selectedDate, "week")}
                             />
                             {Array.from({ length: 7 }, (_, day) => {
                                 const d = days[week * 7 + day];
@@ -135,6 +138,7 @@ export default defineComponent({
                                         isCurrentMonth={d.isCurrentMonth}
                                         isToday={d.isToday}
                                         isSelected={d.isSelected}
+                                        isInSelectedWeek={d.isInSelectedWeek}
                                         dotCount={dotMap.value[key] ?? 0}
                                         isWorkday={info?.isWorkday ?? false}
                                         isHoliday={info?.isHoliday ?? false}

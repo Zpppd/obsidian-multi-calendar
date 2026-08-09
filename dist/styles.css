@@ -170,6 +170,11 @@
     color: var(--text-on-accent);
 }
 
+/* 选中周 — 整周淡色背景（不覆盖当天选中态） */
+.mc-day-cell--week-selected {
+    background: var(--background-modifier-hover);
+}
+
 .mc-week-index {
     display: flex;
     align-items: center;
@@ -184,6 +189,12 @@
 .mc-week-index:hover {
     background: var(--background-modifier-hover);
     color: var(--text-normal);
+}
+
+.mc-week-index--selected {
+    background: var(--interactive-accent);
+    color: var(--text-on-accent);
+    font-weight: bold;
 }
 
 /* 年视图：3 列网格，每列一个缩略月卡片 */

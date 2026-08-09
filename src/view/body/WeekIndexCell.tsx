@@ -10,14 +10,15 @@ export default defineComponent({
     props: {
         weekNumber: { type: Number, required: true },
         monday: { type: Object as PropType<DateTime>, required: true },
+        isSelected: { type: Boolean, default: false },
     },
     setup(props) {
         const viewStore = useViewStore();
         const plugin = inject<MultiCalendarPlugin>("plugin");
 
-        // 单击选中该周（选中周的周一）
+        // 单击选中该周（整周高亮）
         function handleSelect() {
-            viewStore.selectDate(props.monday);
+            viewStore.selectWeek(props.monday);
         }
 
         // 双击打开/创建周记
@@ -29,7 +30,7 @@ export default defineComponent({
 
         return () => (
             <div
-                class="mc-week-index"
+                class={"mc-week-index" + (props.isSelected ? " mc-week-index--selected" : "")}
                 onClick={handleSelect}
                 onDblclick={handleOpen}
             >

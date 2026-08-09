@@ -110,6 +110,19 @@ export class MainSettingTab extends PluginSettingTab {
                     this.plugin.notifyViewRefresh();
                 }));
 
+        new Setting(container)
+            .setName("季度命名")
+            .setDesc("选择季度显示方式：数字（第1季度）或中文（春季）")
+            .addDropdown(dropdown => dropdown
+                .addOption("number", "第1季度")
+                .addOption("chinese", "春季")
+                .setValue(settings.quarterNameMode ?? "number")
+                .onChange(async value => {
+                    settings.quarterNameMode = value as "number" | "chinese";
+                    await this.plugin.database.saveSettings(settings);
+                    this.plugin.notifyViewRefresh();
+                }));
+
         // 统计点配置（旧数据可能缺字段，用 ?? 兜底）
         new Setting(container).setName("笔记统计点").setHeading();
 

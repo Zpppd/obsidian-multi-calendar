@@ -32,7 +32,8 @@ export class Database{
                 wordsPerDot: 100,
                 dotUpperLimit: 3,
                 shouldDisplayLunarInfo: true,
-                shouldDisplayHolidayInfo: true
+                shouldDisplayHolidayInfo: true,
+                quarterNameMode: "number"
             };
             await this.adapter.saveData(this.settings);
         }

@@ -15,4 +15,6 @@ export interface PluginSettings {
     // 显示开关
     shouldDisplayLunarInfo: boolean;    // 是否显示农历
     shouldDisplayHolidayInfo: boolean;  // 是否显示节假日/调休
+    // 季度命名方式
+    quarterNameMode: "number" | "chinese";  // number=第1季度, chinese=春季
 }
