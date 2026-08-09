@@ -163,6 +163,22 @@
     overflow-y: auto;
 }
 
+/* 年份标题：占满整行，双击开年记 */
+.mc-year-title {
+    grid-column: 1 / -1;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    padding: 6px 0 2px;
+    color: var(--text-normal);
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.mc-year-title:hover {
+    background: var(--background-modifier-hover);
+}
+
 .mc-month-card {
     /* 与月视图一致的开放风格：无边框、无背景，靠间距和标题分隔 */
     padding: 4px;

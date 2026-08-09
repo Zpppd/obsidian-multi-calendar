@@ -61,6 +61,17 @@ export class MainSettingTab extends PluginSettingTab {
                     this.plugin.templateService.setPlugin(type);
                 }));
 
+        // 创建行为
+        new Setting(container)
+            .setName("创建前确认")
+            .setDesc(settings.shouldConfirmBeforeCreate ? "创建新笔记前需要确认" : "创建新笔记前不确认")
+            .addToggle(toggle => toggle
+                .setValue(settings.shouldConfirmBeforeCreate)
+                .onChange(async value => {
+                    settings.shouldConfirmBeforeCreate = value;
+                    await this.plugin.database.saveSettings(settings);
+                }));
+
         // 统计点配置（旧数据可能缺字段，用 ?? 兜底）
         new Setting(container).setName("笔记统计点").setHeading();
 
