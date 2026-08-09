@@ -27,7 +27,33 @@ export default defineComponent({
         dotCount: {
             type: Number,
             default: 0
-        }
+        },
+        // 节假日标注
+        isWorkday: {
+            type: Boolean,
+            default: false
+        },
+        isHoliday: {
+            type: Boolean,
+            default: false
+        },
+        holidayName: {
+            type: String,
+            default: ""
+        },
+        // 农历信息
+        lunarMonth: {
+            type: String,
+            default: ""
+        },
+        lunarDay: {
+            type: String,
+            default: ""
+        },
+        lunarFestival: {
+            type: String,
+            default: ""
+        },
     },
     emits: ["select", "open"],
     setup(props, { emit }) {
@@ -39,12 +65,23 @@ export default defineComponent({
                 props.isSelected && "mc-day-cell--selected",
             ].filter(Boolean).join(" ");
 
+            // 优先显示节假日名，其次农历节日，最后农历日
+            const footerText = props.holidayName
+                || props.lunarFestival
+                || (props.lunarMonth ? `${props.lunarMonth} ${props.lunarDay}` : props.lunarDay);
+
             return (
                 <div
                     class={cls}
                     onClick={() => emit("select", props.date)}
                     onDblclick={() => emit("open", props.date)}
                 >
+                    {/* 右上角：调休班/法定假休 */}
+                    {(props.isWorkday || props.isHoliday) && (
+                        <span class={"mc-day-cell-workday" + (props.isHoliday ? " mc-day-cell-workday--holiday" : "")}>
+                            {props.isHoliday ? "休" : "班"}
+                        </span>
+                    )}
                     <span class="mc-day-cell-number">{props.day}</span>
                     {props.dotCount > 0 && (
                         <span class="mc-day-cell-dots">
@@ -53,6 +90,7 @@ export default defineComponent({
                             ))}
                         </span>
                     )}
+                    {footerText && <span class="mc-day-cell-footer">{footerText}</span>}
                 </div>
             )
         }

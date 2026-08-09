@@ -30,7 +30,9 @@ export class Database{
                 templatePlugin: "obsidian",
                 dotColor: "#4A90D9",
                 wordsPerDot: 100,
-                dotUpperLimit: 3
+                dotUpperLimit: 3,
+                shouldDisplayLunarInfo: true,
+                shouldDisplayHolidayInfo: true
             };
             await this.adapter.saveData(this.settings);
         }

@@ -8,6 +8,7 @@ import { CalendarManager } from "./core/CalendarManager";
 import { NoteService } from "./core/NoteService";
 import { TemplateService } from "./core/TemplateService";
 import { FlushScheduler } from "./core/FlushScheduler";
+import { HolidayService } from "./core/HolidayService";
 import { useCalendarStore } from "./stores/calendarStore";
 import { useViewStore } from "./stores/viewStore";
 import { MainSettingTab } from "./view/setting/MainSettingTab";
@@ -78,6 +79,7 @@ export default class MultiCalendarPlugin extends Plugin {
     noteService!: NoteService;
     templateService!: TemplateService;
     flushScheduler!: FlushScheduler;
+    holidayService!: HolidayService;
 
     // 视图刷新回调：设置面板修改数据后，通知所有打开的日历视图刷新 store
     private refreshCallbacks: Set<() => void> = new Set();
@@ -103,6 +105,7 @@ export default class MultiCalendarPlugin extends Plugin {
         this.noteService = new NoteService(this);
         this.templateService = new TemplateService(this);
         this.flushScheduler = new FlushScheduler(this);
+        this.holidayService = new HolidayService();
         // 注册设置面板
         this.addSettingTab(new MainSettingTab(this.app, this));
         // 注册视图类型：告诉 Obsidian 这个 type 对应哪个视图类

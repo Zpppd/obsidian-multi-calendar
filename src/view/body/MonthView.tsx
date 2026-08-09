@@ -5,6 +5,7 @@ import { NoteType } from "src/base/types";
 import { useViewStore } from "../../stores/viewStore";
 import DayCell from "./DayCell";
 import WeekIndexCell from "./WeekIndexCell";
+import { getLunarInfo } from "../../util/lunarUtil";
 
 // 月视图：CSS Grid，周序号列 + 7 列日期，最多 6 行
 export default defineComponent({
@@ -15,6 +16,8 @@ export default defineComponent({
 
         // 日期字符串 → 统计点数（异步加载，响应式）
         const dotMap = ref<Record<string, number>>({});
+        // 日期字符串 → 节假日/农历信息（同步计算，响应式）
+        const dayInfo = ref<Record<string, { isWorkday: boolean; isHoliday: boolean; holidayName: string; lunarMonth: string; lunarDay: string; lunarFestival: string }>>({});
         // 统计点颜色（从设置读取，响应式以便设置修改后刷新）
         const dotColor = ref(plugin?.database.getSettings().dotColor ?? "");
 
@@ -54,11 +57,45 @@ export default defineComponent({
             dotMap.value = map;
         }
 
-        // 日期变化或刷新信号时重新加载统计点（设置改动会触发 forceFlush → flushCounter++）
+        // 同步计算 42 天的节假日/农历信息（按设置开关决定是否计算）
+        function loadDayInfo(dt: DateTime) {
+            if (!plugin) return;
+            const settings = plugin.database.getSettings();
+            const showLunar = settings.shouldDisplayLunarInfo ?? true;
+            const showHoliday = settings.shouldDisplayHolidayInfo ?? true;
+
+            if (!showLunar && !showHoliday) {
+                dayInfo.value = {};
+                return;
+            }
+
+            const days = buildDays(dt);
+            const map: typeof dayInfo.value = {};
+            for (const d of days) {
+                const key = d.date.toFormat("yyyy-MM-dd");
+                const y = d.date.year;
+                const m = d.date.month;
+                const day = d.date.day;
+                const holiday = showHoliday ? plugin.holidayService.getHoliday(y, m, day) : null;
+                const lunar = showLunar ? getLunarInfo(y, m, day) : null;
+                map[key] = {
+                    isWorkday: holiday?.isWorkday ?? false,
+                    isHoliday: holiday?.isHoliday ?? false,
+                    holidayName: holiday?.name ?? "",
+                    lunarMonth: lunar?.monthText ?? "",
+                    lunarDay: lunar?.dayText ?? "",
+                    lunarFestival: lunar?.festival ?? "",
+                };
+            }
+            dayInfo.value = map;
+        }
+
+        // 日期变化或刷新信号时重新加载统计点和节假日/农历（设置改动会触发 forceFlush → flushCounter++）
         watch(
             () => viewStore.selectedDate.toFormat("yyyy-MM") + ":" + viewStore.flushCounter,
             () => {
                 dotColor.value = plugin?.database.getSettings().dotColor ?? "";
+                loadDayInfo(viewStore.selectedDate);
                 loadDots(viewStore.selectedDate);
             },
             { immediate: true }
@@ -90,6 +127,7 @@ export default defineComponent({
                             {Array.from({ length: 7 }, (_, day) => {
                                 const d = days[week * 7 + day];
                                 const key = d.date.toFormat("yyyy-MM-dd");
+                                const info = dayInfo.value[key];
                                 return (
                                     <DayCell
                                         date={d.date}
@@ -98,6 +136,12 @@ export default defineComponent({
                                         isToday={d.isToday}
                                         isSelected={d.isSelected}
                                         dotCount={dotMap.value[key] ?? 0}
+                                        isWorkday={info?.isWorkday ?? false}
+                                        isHoliday={info?.isHoliday ?? false}
+                                        holidayName={info?.holidayName ?? ""}
+                                        lunarMonth={info?.lunarMonth ?? ""}
+                                        lunarDay={info?.lunarDay ?? ""}
+                                        lunarFestival={info?.lunarFestival ?? ""}
                                         onSelect={(date) => viewStore.selectDate(date)}
                                         onOpen={(date) => {
                                             if (plugin) {

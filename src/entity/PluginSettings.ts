@@ -12,4 +12,7 @@ export interface PluginSettings {
     dotColor: string;       // 统计点颜色
     wordsPerDot: number;    // 一个点代表多少字
     dotUpperLimit: number;  // 最多显示几个点
+    // 显示开关
+    shouldDisplayLunarInfo: boolean;    // 是否显示农历
+    shouldDisplayHolidayInfo: boolean;  // 是否显示节假日/调休
 }

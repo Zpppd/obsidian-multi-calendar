@@ -85,6 +85,31 @@ export class MainSettingTab extends PluginSettingTab {
                     await this.plugin.database.saveSettings(settings);
                 }));
 
+        // 显示设置
+        new Setting(container).setName("显示设置").setHeading();
+
+        new Setting(container)
+            .setName("显示农历")
+            .setDesc(settings.shouldDisplayLunarInfo ?? true ? "在日期格子里显示农历" : "不显示农历")
+            .addToggle(toggle => toggle
+                .setValue(settings.shouldDisplayLunarInfo ?? true)
+                .onChange(async value => {
+                    settings.shouldDisplayLunarInfo = value;
+                    await this.plugin.database.saveSettings(settings);
+                    this.plugin.notifyViewRefresh();
+                }));
+
+        new Setting(container)
+            .setName("显示节假日/调休")
+            .setDesc(settings.shouldDisplayHolidayInfo ?? true ? "标记法定假日和调休上班日" : "不显示节假日")
+            .addToggle(toggle => toggle
+                .setValue(settings.shouldDisplayHolidayInfo ?? true)
+                .onChange(async value => {
+                    settings.shouldDisplayHolidayInfo = value;
+                    await this.plugin.database.saveSettings(settings);
+                    this.plugin.notifyViewRefresh();
+                }));
+
         // 统计点配置（旧数据可能缺字段，用 ?? 兜底）
         new Setting(container).setName("笔记统计点").setHeading();
 
