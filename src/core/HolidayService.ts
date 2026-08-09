@@ -10,13 +10,16 @@ export interface HolidayInfo {
 // 节假日服务：基于 lunar-typescript 内置数据查询节假日和调休
 export class HolidayService {
     // 查询某天是否为节假日/调休上班，返回 null 表示普通工作日
+    // name 只在假期第一天返回（day === target），连续假期的其他天 name 为空
     getHoliday(year: number, month: number, day: number): HolidayInfo | null {
         const holiday = HolidayUtil.getHoliday(year, month, day);
         if (!holiday) return null;
 
         const isWorkday = holiday.isWork();
+        // 只有假期第一天（target 指向自身）显示节日名，避免连续假期每天重复
+        const isFirstDay = holiday.getDay() === holiday.getTarget();
         return {
-            name: holiday.getName(),
+            name: isFirstDay ? holiday.getName() : "",
             isWorkday: isWorkday,
             isHoliday: !isWorkday,
         };
