@@ -58,6 +58,10 @@ export default defineComponent({
             type: String,
             default: ""
         },
+        lunarJieqi: {
+            type: String,
+            default: ""
+        },
     },
     emits: ["select", "open"],
     setup(props, { emit }) {
@@ -70,8 +74,9 @@ export default defineComponent({
                 props.isInSelectedWeek && "mc-day-cell--week-selected",
             ].filter(Boolean).join(" ");
 
-            // 优先显示节假日名，其次农历节日，最后农历日
+            // 优先显示节假日名，其次节气，再农历节日，最后农历日
             const footerText = props.holidayName
+                || props.lunarJieqi
                 || props.lunarFestival
                 || (props.lunarMonth ? `${props.lunarMonth} ${props.lunarDay}` : props.lunarDay);
 

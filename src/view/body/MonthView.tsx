@@ -17,7 +17,7 @@ export default defineComponent({
         // 日期字符串 → 统计点数（异步加载，响应式）
         const dotMap = ref<Record<string, number>>({});
         // 日期字符串 → 节假日/农历信息（同步计算，响应式）
-        const dayInfo = ref<Record<string, { isWorkday: boolean; isHoliday: boolean; holidayName: string; lunarMonth: string; lunarDay: string; lunarFestival: string }>>({});
+        const dayInfo = ref<Record<string, { isWorkday: boolean; isHoliday: boolean; holidayName: string; lunarMonth: string; lunarDay: string; lunarFestival: string; lunarJieqi: string }>>({});
         // 统计点颜色（从设置读取，响应式以便设置修改后刷新）
         const dotColor = ref(plugin?.database.getSettings().dotColor ?? "");
 
@@ -87,6 +87,7 @@ export default defineComponent({
                     lunarMonth: lunar?.monthText ?? "",
                     lunarDay: lunar?.dayText ?? "",
                     lunarFestival: lunar?.festival ?? "",
+                    lunarJieqi: lunar?.jieqi ?? "",
                 };
             }
             dayInfo.value = map;
@@ -146,6 +147,7 @@ export default defineComponent({
                                         lunarMonth={info?.lunarMonth ?? ""}
                                         lunarDay={info?.lunarDay ?? ""}
                                         lunarFestival={info?.lunarFestival ?? ""}
+                                        lunarJieqi={info?.lunarJieqi ?? ""}
                                         onSelect={(date) => viewStore.selectDate(date)}
                                         onOpen={(date) => {
                                             if (plugin) {
