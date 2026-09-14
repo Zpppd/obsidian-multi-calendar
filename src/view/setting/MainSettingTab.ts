@@ -49,10 +49,13 @@ export class MainSettingTab extends PluginSettingTab {
 
     display(): void {
         const { containerEl } = this;
+        // 整块重建会让设置页的滚动容器回到顶部，先记录再还原
+        const scrollTop = containerEl.scrollTop;
         containerEl.empty();
         this.renderGlobalSettings(containerEl);
         this.renderCalendarManagement(containerEl);
         this.renderNoteConfigs(containerEl);
+        containerEl.scrollTop = scrollTop;
     }
 
     // 全局设置：模板插件类型 + 统计点配置
