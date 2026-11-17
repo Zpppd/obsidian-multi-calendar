@@ -15,6 +15,15 @@ export interface CalendarProfile {
     notes: Record<NoteType, NoteConfig>;  // 每种笔记类型的配置
 }
 
+// 生成日历 ID：纯 JS 实现，不依赖 crypto.randomUUID（移动端 WebView 非安全上下文下不可用）
+function generateId(): string {
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
+        const r = Math.random() * 16 | 0;
+        const v = c === "x" ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+    });
+}
+
 // 默认日历档案
 export function createDefaultProfile(): CalendarProfile {
     const defaultNoteConfig: NoteConfig = {
@@ -24,7 +33,7 @@ export function createDefaultProfile(): CalendarProfile {
     };
 
     return {
-        id: crypto.randomUUID(),
+        id: generateId(),
         name: "默认日历",
         color: "#4A90D9",
         notes: {
